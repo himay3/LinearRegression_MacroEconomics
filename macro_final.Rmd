@@ -1,0 +1,274 @@
+---
+title: "US_macroeconomics"
+author: "Himabindu"
+date: "2022-11-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("C:/Users/ANURAG/Documents/Course540"))
+```
+
+```{r libraries}
+library(readxl)
+library(tidyverse)
+library(mi)
+library(knitr)
+library(rmarkdown)
+library(car)
+library(plyr)
+library(betareg)
+library(corrgram)
+library(tseries)
+library(urca)
+library(forecast)
+library(trend)
+library(zoo)
+library(reshape)
+```
+
+```{r read the data}
+Final_project <- read.csv("USmacroeconomics.csv")
+view(Final_project)
+summary(Final_project)
+```
+
+```{r}
+Final_project$Recession_categ<-ifelse(Final_project$Recession_categ=="yes",1,0)
+view(Final_project)
+```
+
+
+```{r graph the data}
+ggplot(data = Final_project, aes(x=CPI, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=Mortgage_rate, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=Unemp_rate, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=NASDAQ, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=disposable_income, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=Personal_consumption_expenditure, y=personal_savings)) + geom_point(size=2)
+ggplot(data = Final_project, aes(x=Recession_categ, y=personal_savings)) + geom_point(size = 2)
+```
+
+```{r}
+ggplot(data = Final_project, aes(x=CPI, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=Mortgage_rate, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=Unemp_rate, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=NASDAQ, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=disposable_income, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=Personal_consumption_expenditure, y=personal_savings)) + geom_point(size=2) + geom_smooth()
+ggplot(data = Final_project, aes(x=Recession_categ, y=personal_savings)) + geom_point(size = 2) +geom_smooth()
+```
+
+
+```{r}
+hist(Final_project$Unemp_rate)
+hist(Final_project$NASDAQ)
+hist(Final_project$disposable_income)
+hist(Final_project$Personal_consumption_expenditure)
+hist(Final_project$Mortgage_rate)
+hist(Final_project$CPI)
+hist(Final_project$Recession_categ)
+hist(Final_project$personal_savings)
+```
+
+
+
+```{r}
+plot(Final_project$Unemp_rate, Final_project$personal_savings, main="Scatterplot",   xlab="unemp rate ", ylab="savings ", pch=19)
+
+plot(Final_project$NASDAQ, Final_project$personal_savings, main="Scatterplot",   xlab="NASDAQ ", ylab="savings ", pch=19)
+
+plot(Final_project$CPI, Final_project$personal_savings, main="Scatterplot",   xlab="CPI ", ylab="savings ", pch=19)
+
+plot(Final_project$Mortgage_rate, Final_project$personal_savings, main="Scatterplot",   xlab="Mortgage Rate ", ylab="savings ", pch=19)
+
+plot(Final_project$Personal_consumption_expenditure, Final_project$personal_savings, main="Scatterplot",   xlab="Personal Consumption Expediture ", ylab="savings ", pch=19)
+
+plot(Final_project$disposable_income, Final_project$personal_savings, main="Scatterplot",   xlab="Disposable Income ", ylab="savings ", pch=19)
+
+plot(Final_project$Recession_categ, Final_project$personal_savings, main="Scatterplot",   xlab="Recession ", ylab="savings ", pch=19)
+```
+
+```{r vectors}
+
+v1_CPI <- Final_project$CPI
+v2_MortgageRate <- Final_project$Mortgage_rate
+v3_UnempRate <- Final_project$Unemp_rate
+v4_NASDAQ <- Final_project$NASDAQ
+v5_DisposableIncome <- Final_project$disposable_income
+v6_PCE <- Final_project$Personal_consumption_expenditure
+v7_Recession <- Final_project$Recession_categ
+v8_PersonalSavings <- Final_project$personal_savings
+
+class(v5)
+Final_vector <- cbind(v1_CPI,v2_MortgageRate, v3_UnempRate, v4_NASDAQ, v5_DisposableIncome, v6_PCE, v7_Recession, v8_PersonalSavings )
+
+Final_vector
+```
+
+```{r correlation matrix}
+cor(Final_vector)
+```
+
+```{r linear model}
+fit1<-lm(personal_savings ~ CPI+Mortgage_rate+Unemp_rate+NASDAQ+disposable_income+Personal_consumption_expenditure+Recession_categ, data = Final_project)
+summary(fit1)
+```
+
+```{r linear model2}
+fit2<-lm(personal_savings ~ CPI+Mortgage_rate+Unemp_rate+NASDAQ+disposable_income+Personal_consumption_expenditure, data = Final_project)
+summary(fit2)
+```
+
+```{r linear model3}
+fit3<-lm(personal_savings ~ Mortgage_rate+Unemp_rate+NASDAQ+disposable_income+Personal_consumption_expenditure, data = Final_project)
+summary(fit3)
+```
+```{r}
+fit4<-lm(personal_savings ~ CPI+Mortgage_rate+Unemp_rate+NASDAQ+disposable_income, data = Final_project)
+summary(fit4)
+```
+```{r}
+fit4<-lm(personal_savings ~ Mortgage_rate+Unemp_rate+NASDAQ+disposable_income+Personal_consumption_expenditure, data = Final_project)
+summary(fit4)
+```
+
+```{r collinearity test}
+vif(fit1)
+
+```
+
+```{r}
+vif(fit2)
+```
+
+```{r}
+vif(fit3)
+```
+```{r}
+anova(fit1,fit2)
+```
+
+```{r}
+anova(fit2,fit3)
+```
+
+```{r}
+anova(fit3,fit1)
+```
+
+```{r}
+plot(fit2)
+```
+
+```{r}
+Final_project$LOGMRate <- log10(Final_project$Mortgage_rate)
+Final_project$LOGURate <- log10(Final_project$Unemp_rate)
+Final_project$LOGNASDAQ <- log10(Final_project$NASDAQ)
+Final_project$LOGDI <- log10(Final_project$disposable_income)
+Final_project$LOGPS <- log10(Final_project$personal_savings)
+Final_project$LOGCPI <- log10(Final_project$CPI)
+Final_project$LOGPCE <- log10(Final_project$Personal_consumption_expenditure)
+```
+
+```{r}
+hist(Final_project$LOGCPI)
+hist(Final_project$LOGDI)
+hist(Final_project$LOGMRate)
+hist(Final_project$LOGNASDAQ)
+hist(Final_project$LOGPCE)
+hist(Final_project$LOGURate)
+hist(Final_project$LOGPS)
+```
+
+```{r}
+plot(Final_project$LOGURate, Final_project$LOGPS, main="Scatterplot",   xlab="LOG unemployment rate ", ylab="LOG savings ", pch=19).
+
+plot(Final_project$LOGNASDAQ, Final_project$LOGPS, main="Scatterplot",   xlab="LOG NASDAQ ", ylab="LOG savings ", pch=19)
+
+plot(Final_project$LOGCPI, Final_project$LOGPS, main="Scatterplot",   xlab="LOG CPI ", ylab="LOG savings ", pch=19)
+
+plot(Final_project$LOGMRate, Final_project$LOGPS, main="Scatterplot",   xlab="LOG Mortgage Rate ", ylab="LOG savings ", pch=19)
+
+plot(Final_project$LOGPCE, Final_project$personalLOGPS, main="Scatterplot",   xlab="LOG Personal Consumption Expediture ", ylab="LOG savings ", pch=19)
+
+plot(Final_project$LOGDI, Final_project$LOGPS, main="Scatterplot",   xlab="LOG Disposable Income ", ylab="LOG savings ", pch=19)
+
+#plot(Final_project$Recession_categ, Final_project$LOGPS, main="Scatterplot",   xlab="Recession ", ylab="LOG savings ", pch=19)
+```
+
+
+```{r regression - tranformed variables}
+Log_fit1<-lm(LOGPS ~ LOGMRate+LOGURate+LOGNASDAQ+LOGDI+LOGCPI+LOGPCE+Recession_categ, data = Final_project)
+summary(Log_fit1)
+```
+
+```{r}
+Log_fit2<-lm(LOGPS ~ LOGMRate+LOGURate+LOGNASDAQ+LOGDI+LOGCPI+LOGPCE, data = Final_project)
+summary(Log_fit2)
+```
+
+
+```{r}
+Log_fit3<-lm(LOGPS ~ LOGMRate+LOGURate+LOGDI+LOGCPI+LOGPCE+Recession_categ, data = Final_project)
+summary(Log_fit3)
+```
+
+```{r}
+Log_fit4<-lm(LOGPS ~ LOGMRate+LOGURate+LOGDI+LOGCPI+LOGNASDAQ, data = Final_project)
+summary(Log_fit4)
+```
+
+```{r}
+plot(Log_fit1)
+```
+
+
+
+```{r}
+v1_CPI <- Final_project$LOGCPI
+v2_MortgageRate <- Final_project$LOGMRate
+v3_UnempRate <- Final_project$LOGURate
+v4_NASDAQ <- Final_project$LOGNASDAQ
+v5_DisposableIncome <- Final_project$LOGDI
+v6_PCE <- Final_project$LOGPCE
+v7_Recession <- Final_project$Recession_categ
+v8_PersonalSavings <- Final_project$LOGPS
+
+Final_vector1 <- cbind(v1_CPI,v2_MortgageRate, v3_UnempRate, v4_NASDAQ, v5_DisposableIncome, v6_PCE, v7_Recession, v8_PersonalSavings )
+
+Final_vector1
+```
+
+```{r}
+cor(Final_vector1)
+```
+
+
+```{r}
+install.packages("Hmisc")
+library("Hmisc")
+```
+
+```{r correlation and p values}
+mydata.rcorr = rcorr(Final_vector)
+mydata.rcorr
+
+mydata.coeff = mydata.rcorr$r
+mydata.p = mydata.rcorr$P
+
+mydata.coeff
+mydata.p
+```
+
+```{r}
+install.packages("PerformanceAnalytics")
+library("PerformanceAnalytics")
+```
+
+```{r}
+chart.Correlation(Final_vector, histogram=TRUE, pch=19)
+```
+
+
